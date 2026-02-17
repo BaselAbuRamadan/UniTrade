@@ -21,10 +21,10 @@ from django.urls import include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('item/', include('item.urls')),
-    path('message/', include('message.urls')),
-    path('order/', include('order.urls')),
-    path('review/', include('review.urls')),
-    path('user/', include('user.urls')),  # 添加用户相关的URLs
+    path('item_urls/', include('item.urls')),
+    path('message_urls/', include('message.urls')),
+    path('order_urls/', include('order.urls')),
+    path('review_urls/', include('review.urls')),
+    path('user_urls/', include('user.urls')),  # 添加用户相关的URLs
 
 ]
