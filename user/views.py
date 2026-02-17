@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from user_lib import UserLoginForm, UserRegisterForm
+from .forms import UserLoginForm, UserRegisterForm
 
 
 def user_login(request):

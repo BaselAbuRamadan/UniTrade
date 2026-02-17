@@ -18,13 +18,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
+from django.shortcuts import render
+
+def index(request):
+    return render(request, "index.html")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('item_urls/', include('item.urls')),
-    path('message_urls/', include('message.urls')),
-    path('order_urls/', include('order.urls')),
-    path('review_urls/', include('review.urls')),
-    path('user_urls/', include('user.urls')),  # 添加用户相关的URLs
+    path('', index, name='index'),
+    # path('administrator/', include('administrator.urls')),
+    # path('item/', include('item.urls')),
+    # path('message/', include('message.urls')),
+    # path('order', include('order.urls')),
+    # path('review/', include('review.urls')),
+    path('user/', include('user.urls'))
 
 ]

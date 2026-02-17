@@ -1,21 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>UniTrade Register Demo</title>
+    <title>Login</title>
 </head>
 <body>
 
-<h2>UniTrade Register Demo</h2>
+<h2>Login</h2>
+
+{% if messages %}
+    {% for message in messages %}
+        <p style="color:
+            {% if 'error' in message.tags %}
+                red
+            {% else %}
+                green
+            {% endif %};">
+            {{ message }}
+        </p>
+    {% endfor %}
+{% endif %}
 
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Register</button>
+    <button type="submit">Login</button>
 </form>
 
-<a href="{% url 'user_login' %}">Login</a>
+<a href="{% url 'user:user_register' %}">Register</a>
 
 </body>
 </html>
+
 
 
