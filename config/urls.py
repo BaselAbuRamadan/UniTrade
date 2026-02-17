@@ -17,7 +17,14 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from django.urls import include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path('item/', include('item.urls')),
+    path('message/', include('message.urls')),
+    path('order/', include('order.urls')),
+    path('review/', include('review.urls')),
+    path('user/', include('user.urls')),  # 添加用户相关的URLs
+
 ]
