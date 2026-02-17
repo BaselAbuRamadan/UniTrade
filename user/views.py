@@ -30,7 +30,7 @@ def user_register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()  # 这里会 set_password，并保存
+            user = form.save()
             login(request, user)
             messages.success(request, 'Registration successful!')
             return redirect('index')
