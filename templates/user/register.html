@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>UniTrade Login Demo</title>
+    <title>Register</title>
 </head>
 <body>
 
-<h2>Unitrade Login Demo</h2>
+<h2>Register</h2>
 
 {% if messages %}
     {% for message in messages %}
@@ -23,10 +23,14 @@
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Login</button>
+    <button type="submit">Register</button>
 </form>
 
-<a href="{% url 'user:user_register' %}">Register</a>
+<p>
+    Already have an account?
+    <a href="{% url 'user:user_login' %}">Login</a>
+</p>
 
 </body>
 </html>
+

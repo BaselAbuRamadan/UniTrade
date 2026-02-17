@@ -28,34 +28,18 @@ def user_login(request):
 
 def user_register(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()  # 这里会 set_password，并保存
+            login(request, user)
+            messages.success(request, 'Registration successful!')
+            return redirect('index')
+        else:
+            messages.error(request, 'Registration failed!')
+    else:
+        form = UserRegisterForm()
 
-        if password1 != password2:
-            messages.error(request, 'The two passwords do not match!')
-            return render(request, 'user/register.html')
-
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'Username already exists!')
-            return render(request, 'user/register.html')
-
-        if User.objects.filter(email=email).exists():
-            messages.error(request, 'Email has already been registered!')
-            return render(request, 'user/register.html')
-
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password1
-        )
-
-        login(request, user)
-        messages.success(request, 'Registration successful!')
-        return redirect('index')
-
-    return render(request, 'user/register.html')
+    return render(request, 'user/register.html', {'form': form})
 
 
 @login_required
