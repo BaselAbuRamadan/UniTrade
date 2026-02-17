@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UniTrade Homepage Demo</title>
+</head>
+<body>
+
+<h2>UniTrade Homepage Demo</h2>
+<h2>This is a temporary homepage for testing user functions</h2>
+    <div>
+    {% if user.is_authenticated %}
+        <p>Welcome {{ user.username }}</p>
+        <a href="{% url 'user_logout' %}">Logout</a>
+    {% else %}
+        <a href="{% url 'user_login' %}">Login</a>
+        <a href="{% url 'user_register' %}">Register</a>
+    {% endif %}
+    </div>
+</body>
+</html>

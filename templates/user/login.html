@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UniTrade Register Demo</title>
+</head>
+<body>
+
+<h2>UniTrade Register Demo</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Register</button>
+</form>
+
+<a href="{% url 'user_login' %}">Login</a>
+
+</body>
+</html>
+
+
