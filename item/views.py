@@ -30,5 +30,5 @@ def item_search():
     return 0
 
 @login_required
-def my_products():
+def my_item():
     return 0
