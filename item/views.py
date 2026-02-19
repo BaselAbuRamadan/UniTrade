@@ -5,6 +5,9 @@ from django.contrib import messages
 def item():
     return 0
 
+def item_create():
+    return 0
+
 def item_publish():
     return 0
 
