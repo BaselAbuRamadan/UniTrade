@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Item List For Test</title>
+</head>
+<body>
+
+<h1>Item List For Test</h1>
+
+<p><a href="{% url 'item:item_test' %}">Back to Item Test</a></p>
+
+{% if items %}
+    <ul>
+        {% for it in items %}
+            <li>
+                {{ it.title }} - {{ it.price }} - {{ it.status }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No items found.</p>
+{% endif %}
+
+</body>
+</html>
