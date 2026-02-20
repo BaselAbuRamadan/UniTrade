@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Item Test</title>
+</head>
+<body>
+
+<h1>Item Test Page</h1>
+
+<hr>
+
+<h2>Quick Links</h2>
+
+<ul>
+    <li><a href="{% url 'item:item_list' %}">View Active Items</a></li>
+    <li><a href="{% url 'item:item_create' %}">Create Item</a></li>
+    <li><a href="{% url 'item:item_search' %}?q=test">Search "test"</a></li>
+    <li><a href="{% url 'item:my_item' %}">My Items</a></li>
+</ul>
+
+<hr>
+
+<h2>Categories</h2>
+
+{% if categories %}
+    <ul>
+        {% for category in categories %}
+            <li>
+                <a href="{% url 'item_category' category.slug %}">
+                    {{ category.name }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No categories found.</p>
+{% endif %}
+
+<hr>
+
+<h2>Debug Info</h2>
+
+<p>Authenticated: {{ request.user.is_authenticated }}</p>
+<p>User: {{ request.user }}</p>
+
+</body>
+</html>

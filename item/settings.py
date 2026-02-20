@@ -1,0 +1,1 @@
+USER_DELETE_ITEM_POLICY = "delist"  # or "hide"
