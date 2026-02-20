@@ -33,7 +33,7 @@ def item_create(request):
 @login_required
 def item_publish(request, item_id):
     obj = get_object_or_404(Item, pk=item_id, seller=request.user)
-    # Allow republish from delisted/hidden to active
+    #allow republish from delisted/hidden to active
     obj.status = Item.Status.ACTIVE
     obj.save(update_fields=["status", "updated_at"])
     return redirect("item_detail", item_id=obj.id)
@@ -69,8 +69,8 @@ def item_category(request, slug):
 
 
 def item_tag(request, tag_slug):
-    # You currently have no Tag model/field, so this is a placeholder.
-    # Once you add tags, implement filtering here.
+    #currently have no Tag model/field, so this is a placeholder.
+    #once add tags, implement filtering here.
     return render(request, "item/not_implemented.html", {"feature": "tag"})
 
 
