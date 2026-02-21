@@ -47,3 +47,25 @@ def user_logout(request):
     logout(request)
     messages.success(request, 'Successfully logged out!')
     return redirect('index')
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def dashboard_redirect(request):
+    """
+    Redirects users based on their role after login.
+    Merchants go to 'My Items', Students go to the 'Marketplace'.
+    """
+    # Check if a profile exists; if not, you might need to create one or handle the error
+    try:
+        role = request.user.profile.role
+    except AttributeError:
+        # Default fallback if no profile exists
+        return redirect('item:item_list')
+
+    if role == 'merchant':
+        # Merchants manage their listings [cite: 172]
+        return redirect('item:my_item')
+    else:
+        # Students browse the marketplace [cite: 168, 182]
+        return redirect('item:item_list')
