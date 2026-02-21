@@ -1,0 +1,14 @@
+<nav>
+    <a href="{% url 'item:item_list' %}">UniTrade Home</a>
+    
+    {% if user.is_authenticated %}
+        {% if user.profile.role == 'merchant' %}
+            <a href="{% url 'item:item_create' %}">Add New Item</a>
+            <a href="{% url 'item:my_item' %}">My Shop</a>
+        {% else %}
+            <a href="{% url 'item:item_list' %}">Browse Items</a> [cite: 182]
+            <a href="{% url 'order:my_order' %}">My Purchases</a>
+        {% endif %}
+        <a href="{% url 'user:user_logout' %}">Logout</a>
+    {% endif %}
+</nav>
