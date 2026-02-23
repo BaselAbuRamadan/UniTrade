@@ -64,8 +64,8 @@ def dashboard_redirect(request):
         return redirect('item:item_list')
 
     if role == 'merchant':
-        # Merchants manage their listings [cite: 172]
+        # Merchants manage their listings
         return redirect('item:my_item')
     else:
-        # Students browse the marketplace [cite: 168, 182]
+        # Students browse the marketplace
         return redirect('item:item_list')
