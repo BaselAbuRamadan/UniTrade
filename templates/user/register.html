@@ -1,4 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Register - UniTrade{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2 class="auth-title">Registerrrrrrrrrrrr</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <p style="color: {% if 'error' in message.tags %}red{% else %}green{% endif %}; font-weight: bold; text-align: center;">
+                {{ message }}
+            </p>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" class="auth-form">
+        {% csrf_token %}
+        
+        {{ form.as_p }}
+        
+        <button type="submit" class="btn-publish btn-submit">Register</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 20px;">
+        Already have an account???
+        <a href="{% url 'user:user_login' %}" style="color: #007bff; text-decoration: none; font-weight: bold;">Login</a>
+    </p>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- {% extends "base.html" %}
+
 <!DOCTYPE html>
+
 <html>
 <head>
     <title>Register</title>
@@ -20,17 +74,31 @@
     {% endfor %}
 {% endif %}
 
-<form method="post">
+
+{% block content %}
+<div class="auth-container">
+    <h2 class="auth-title">Register</h2>
+    <form method="post" class="auth-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+    <button type="submit" class="btn-publish btn-submit">Register</button>
+    </form>
+</div>
+
+
+
+<!-- <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Register</button>
-</form>
+</form> -->
 
 <p>
     Already have an account?
     <a href="{% url 'user:user_login' %}">Login</a>
 </p>
+{% endblock %}
 
 </body>
 </html>
-
+ -->

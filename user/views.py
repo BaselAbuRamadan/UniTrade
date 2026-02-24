@@ -38,6 +38,7 @@ def user_register(request):
             messages.error(request, 'Registration failed!')
     else:
         form = UserRegisterForm()
+    
 
     return render(request, 'user/register.html', {'form': form})
 
