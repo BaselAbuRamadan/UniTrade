@@ -78,9 +78,14 @@ def user_logout(request):
 def dashboard_redirect(request):
     """
     Redirects users based on their role after login.
-    Merchants go to 'My Items', Students go to the 'Marketplace'.
+    Admins go to 'Admin Panel', Merchants go to 'My Shop', Students go to 'Browse'.
     """
-    # Check if a profile exists; if not, you might need to create one or handle the error
+    
+    # 1. NEW LOGIC: Check if the user is an Admin first!
+    if request.user.is_staff:
+        return redirect('administrator:dashboard')
+
+    # 2. Existing logic for normal users
     try:
         role = request.user.profile.role
     except AttributeError:
