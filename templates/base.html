@@ -51,22 +51,21 @@
                 </form>
             </div>
 
-            <div class="nav-links">
-                {% if user.is_authenticated %}
-                    <span style="color: #666; margin-right: 10px;">Hi, {{ user.username }}</span>
-                    {% if user.profile.role == 'merchant' %}
-                        <a href="{% url 'item:item_create' %}" class="btn-publish">+ Add New Item</a>
-                        <a href="{% url 'item:my_item' %}">My Shop</a>
-                    {% else %}
-                        <a href="{% url 'item:item_list' %}">Browse Items</a>
-                        <a href="{% url 'order:my_order' %}">My Purchases</a>
-                    {% endif %}
-                    <a href="{% url 'user:user_logout' %}">Logout</a>
-                {% else %}
-                    <a href="{% url 'user:user_login' %}">Login</a>
-                    <a href="{% url 'user:user_register' %}" class="btn-publish">Register</a>
-                {% endif %}
-            </div>
+ <div class="nav-links">
+    {% if user.is_authenticated %}
+        <span style="color: #666; margin-right: 10px;">Hi, {{ user.username }}</span>
+        {% if user.profile.role == 'merchant' %}
+            <a href="{% url 'item:item_create' %}" class="btn-publish">+ Add New Item</a>
+            <a href="{% url 'item:my_item' %}">My Shop</a>
+        {% else %}
+            <a href="{% url 'item:item_list' %}">Browse Items</a>
+        {% endif %}
+        <a href="{% url 'user:user_logout' %}">Logout</a>
+    {% else %}
+        <a href="{% url 'user:user_login' %}">Login</a>
+        <a href="{% url 'user:user_register' %}" class="btn-publish">Register</a>
+    {% endif %}
+</div>
         </nav>
     </header>
 
@@ -89,4 +88,6 @@
         <p>&copy; {% now "Y" %} UniTrade Marketplace. Built for Students.</p>
     </footer>
 
-    {%
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

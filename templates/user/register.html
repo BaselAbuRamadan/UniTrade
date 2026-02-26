@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="auth-container">
-    <h2 class="auth-title">Registerrrrrrrrrrrr</h2>
+    <h2 class="auth-title">Regiter</h2>
     
     {% if messages %}
         {% for message in messages %}
-            <p style="color: {% if 'error' in message.tags %}red{% else %}green{% endif %}; font-weight: bold; text-align: center;">
+            <p style="color: {% if 'error' in message.tags %}red{% else %}green{% endif %}; font-weight: bold; text-align: center;margin-top: 20px;">
                 {{ message }}
             </p>
         {% endfor %}
@@ -28,77 +28,3 @@
     </p>
 </div>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- {% extends "base.html" %}
-
-<!DOCTYPE html>
-
-<html>
-<head>
-    <title>Register</title>
-</head>
-<body>
-
-<h2>Register</h2>
-
-{% if messages %}
-    {% for message in messages %}
-        <p style="color:
-            {% if 'error' in message.tags %}
-                red
-            {% else %}
-                green
-            {% endif %};">
-            {{ message }}
-        </p>
-    {% endfor %}
-{% endif %}
-
-
-{% block content %}
-<div class="auth-container">
-    <h2 class="auth-title">Register</h2>
-    <form method="post" class="auth-form">
-        {% csrf_token %}
-        {{ form.as_p }}
-    <button type="submit" class="btn-publish btn-submit">Register</button>
-    </form>
-</div>
-
-
-
-<!-- <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Register</button>
-</form> -->
-
-<p>
-    Already have an account?
-    <a href="{% url 'user:user_login' %}">Login</a>
-</p>
-{% endblock %}
-
-</body>
-</html>
- -->
