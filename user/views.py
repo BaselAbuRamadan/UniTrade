@@ -4,8 +4,26 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import UserLoginForm, UserRegisterForm
+# def user_login(request):
+#     if request.method == 'POST':
+#         form = UserLoginForm(request.POST)
+#         if form.is_valid():
+#             username = form.cleaned_data['username']
+#             password = form.cleaned_data['password']
+#             user = authenticate(username=username, password=password)
+#             if user is not None:
+#                 login(request, user)
+#                 messages.success(request, 'Login successful!')
+#                 next_url = request.GET.get('next', '/')
+#                 return redirect(next_url)
+#             else:
+#                 messages.error(request, 'Invalid username or password!')
+#     else:
+#         form = UserLoginForm()
 
+#     return render(request, 'user/login.html', {'form': form})
 
+# user/views.py
 def user_login(request):
     if request.method == 'POST':
         form = UserLoginForm(request.POST)
@@ -16,14 +34,21 @@ def user_login(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, 'Login successful!')
-                next_url = request.GET.get('next', '/')
-                return redirect(next_url)
+                
+                # NEW REDIRECT LOGIC
+                next_url = request.GET.get('next')
+                if next_url:
+                    return redirect(next_url)
+                else:
+                    # This sends them to your dashboard_redirect logic!
+                    return redirect('user:dashboard') 
             else:
                 messages.error(request, 'Invalid username or password!')
     else:
         form = UserLoginForm()
 
     return render(request, 'user/login.html', {'form': form})
+
 
 
 def user_register(request):
@@ -38,6 +63,7 @@ def user_register(request):
             messages.error(request, 'Registration failed!')
     else:
         form = UserRegisterForm()
+    
 
     return render(request, 'user/register.html', {'form': form})
 
@@ -47,16 +73,19 @@ def user_logout(request):
     logout(request)
     messages.success(request, 'Successfully logged out!')
     return redirect('index')
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
 
 @login_required
 def dashboard_redirect(request):
     """
     Redirects users based on their role after login.
-    Merchants go to 'My Items', Students go to the 'Marketplace'.
+    Admins go to 'Admin Panel', Merchants go to 'My Shop', Students go to 'Browse'.
     """
-    # Check if a profile exists; if not, you might need to create one or handle the error
+    
+    # 1. NEW LOGIC: Check if the user is an Admin first!
+    if request.user.is_staff:
+        return redirect('administrator:dashboard')
+
+    # 2. Existing logic for normal users
     try:
         role = request.user.profile.role
     except AttributeError:
