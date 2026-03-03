@@ -202,7 +202,16 @@
                 <div class="seller-avatar">{{ item.seller.username|first|upper }}</div>
                 <div>
                     <div style="font-weight: bold; font-size: 16px;">{{ item.seller.username }}</div>
-                    <div style="font-size: 14px; color: #666; margin-top: 4px;">Contact: {{ item.contact }}</div>
+                    
+                    {% if has_ordered or user == item.seller %}
+                        <div style="font-size: 14px; color: #28a745; margin-top: 4px; font-weight: bold;">
+                            ✅ Contact: {{ item.contact }}
+                        </div>
+                    {% else %}
+                        <div style="font-size: 13px; color: #999; margin-top: 4px; font-style: italic;">
+                            Place an order to view contact information.
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
