@@ -35,7 +35,7 @@ urlpatterns = [
     # path('item/', include('item.urls')),
     # path('message/', include('message.urls')),
     path('order', include('order.urls')),
-    # path('review/', include('review.urls')),
+    path('review/', include('review.urls')),
     path('user/', include('user.urls')),
     path("item/", include("item.urls")),
 
