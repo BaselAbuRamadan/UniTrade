@@ -3,19 +3,47 @@ from django.contrib import messages
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-
 from .forms import ItemForm
 from .models import Category, Item
 from django.http import Http404, JsonResponse  # <-- Added JsonResponse here
+from django.db.models import Count
+from review.models import Review
 
 
+# def item(request, item_id):
+#     obj = get_object_or_404(Item, pk=item_id)
+#     # Public can only view active items; owner can view their own
+#     if obj.status != Item.Status.ACTIVE and obj.seller_id != getattr(request.user, "id", None):
+#         raise Http404("Item not found")
+#     return render(request, "item/item_detail.html", {"item": obj})
 def item(request, item_id):
     obj = get_object_or_404(Item, pk=item_id)
+
     # Public can only view active items; owner can view their own
     if obj.status != Item.Status.ACTIVE and obj.seller_id != getattr(request.user, "id", None):
         raise Http404("Item not found")
-    return render(request, "item/item_detail.html", {"item": obj})
 
+    reviews = (
+        Review.objects.filter(order__item=obj)
+        .select_related("customer", "order")
+        .prefetch_related("images", "likes")
+        .annotate(like_count=Count("likes"))
+        .order_by("-created_time")
+    )
+
+    liked_ids = set()
+    if request.user.is_authenticated:
+        liked_ids = set(
+            request.user.reviewlike_set.filter(
+                review__order__item=obj
+            ).values_list("review_id", flat=True)
+        )
+
+    return render(request, "item/item_detail.html", {
+        "item": obj,
+        "reviews": reviews,
+        "liked_ids": liked_ids,
+    })
 
 @login_required
 def item_create(request):

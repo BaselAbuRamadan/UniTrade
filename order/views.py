@@ -9,6 +9,7 @@ from django.urls import reverse
 from item.models import Item
 from .models import Basket, BasketItem, Order
 import uuid
+from order.models import Order
 
 '''The following are the order functions'''
 
