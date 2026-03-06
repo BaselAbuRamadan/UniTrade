@@ -78,9 +78,19 @@
 <main class="main-content">
         
         {% if search_query %}
-            <h2 class="page-header" style="border-bottom: 2px solid #007bff; display: inline-block; padding-bottom: 5px;">
-                Search Results for "{{ search_query }}"
-            </h2>
+            <div style="display: flex; align-items: baseline; margin-bottom: 20px;">
+                <h2 class="page-header" style="margin: 0; border-bottom: 2px solid #007bff; display: inline-block; padding-bottom: 5px;">
+                    Search Results for "{{ search_query }}"
+                </h2>
+                
+                <a href="{% if category %}{% url 'item:item_category' category.slug %}{% else %}{% url 'item:item_list' %}{% endif %}" 
+                   style="margin-left: 15px; text-decoration: none; color: #007bff; font-size: 28px; line-height: 1; transition: transform 0.2s; display: inline-block;"
+                   onmouseover="this.style.transform='scale(1.2)'" 
+                   onmouseout="this.style.transform='scale(1)'"
+                   title="Clear Search">
+                    &times;
+                </a>
+            </div>
         {% endif %}
         
         {% if items %}
