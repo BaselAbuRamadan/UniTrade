@@ -155,57 +155,57 @@ def item_search(request):
         "category": current_category,  
         "search_query": q
     })
-    q = (request.GET.get("q") or "").strip()
-    category_slug = request.GET.get("category")  # Catch the hidden category parameter
+    # q = (request.GET.get("q") or "").strip()
+    # category_slug = request.GET.get("category")  # Catch the hidden category parameter
     
-    qs = Item.objects.filter(status=Item.Status.ACTIVE)
+    # qs = Item.objects.filter(status=Item.Status.ACTIVE)
     
-    # 1. If a category was passed, filter the items by that category FIRST
-    current_category = None
-    if category_slug:
-        current_category = get_object_or_404(Category, slug=category_slug)
-        qs = qs.filter(category=current_category)
+    # # 1. If a category was passed, filter the items by that category FIRST
+    # current_category = None
+    # if category_slug:
+    #     current_category = get_object_or_404(Category, slug=category_slug)
+    #     qs = qs.filter(category=current_category)
         
-    # 2. Then apply the text search keyword
-    if q:
-        qs = qs.filter(Q(title__icontains=q) | Q(description__icontains=q))
+    # # 2. Then apply the text search keyword
+    # if q:
+    #     qs = qs.filter(Q(title__icontains=q) | Q(description__icontains=q))
         
-    qs = qs.order_by("-created_at")
+    # qs = qs.order_by("-created_at")
     
-    # Pass everything back to your beautiful item_list grid
-    categories = Category.objects.all()
-    return render(request, "item/item_list.html", {
-        "items": qs, 
-        "categories": categories,
-        "category": current_category,  # Keeps the sidebar category highlighted!
-        "search_query": q
-    })
-    q = (request.GET.get("q") or "").strip()
-    qs = Item.objects.filter(status=Item.Status.ACTIVE)
-    if q:
-        qs = qs.filter(Q(title__icontains=q) | Q(description__icontains=q))
-    qs = qs.order_by("-created_at")
+    # # Pass everything back to your beautiful item_list grid
+    # categories = Category.objects.all()
+    # return render(request, "item/item_list.html", {
+    #     "items": qs, 
+    #     "categories": categories,
+    #     "category": current_category,  # Keeps the sidebar category highlighted!
+    #     "search_query": q
+    # })
+    # q = (request.GET.get("q") or "").strip()
+    # qs = Item.objects.filter(status=Item.Status.ACTIVE)
+    # if q:
+    #     qs = qs.filter(Q(title__icontains=q) | Q(description__icontains=q))
+    # qs = qs.order_by("-created_at")
     
-    # NEW: Check if this is an AJAX "live search" request
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        # We only return the top 5 results for the dropdown to keep it clean
-        results = []
-        for item in qs[:5]:
-            results.append({
-                'id': item.id,
-                'title': item.title,
-                'price': str(item.price),
-                'image_url': item.image.url if item.image else '',
-            })
-        return JsonResponse({'status': 'success', 'results': results})
+    # # NEW: Check if this is an AJAX "live search" request
+    # if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+    #     # We only return the top 5 results for the dropdown to keep it clean
+    #     results = []
+    #     for item in qs[:5]:
+    #         results.append({
+    #             'id': item.id,
+    #             'title': item.title,
+    #             'price': str(item.price),
+    #             'image_url': item.image.url if item.image else '',
+    #         })
+    #     return JsonResponse({'status': 'success', 'results': results})
 
-    # Existing standard response (for when they press Enter)
-    categories = Category.objects.all()
-    return render(request, "item/item_list.html", {
-        "items": qs, 
-        "categories": categories, 
-        "search_query": q  
-    })
+    # # Existing standard response (for when they press Enter)
+    # categories = Category.objects.all()
+    # return render(request, "item/item_list.html", {
+    #     "items": qs, 
+    #     "categories": categories, 
+    #     "search_query": q  
+    # })
 
 
 @login_required
@@ -299,34 +299,16 @@ def order_refuse(request, order_id):
             order.status = "cancelled"
             order.save(update_fields=["status"])
             
+        # Safely return the stock to the market!
         item = order.item
         item.stock += 1
-        if item.status in [Item.Status.PENDING, Item.Status.SOLD]:
+        if item.status in ["pending", "sold"]:
             item.status = Item.Status.ACTIVE
         item.save(update_fields=["stock", "status", "updated_at"])
         messages.success(request, f'Sale refused. Stock returned to the market.')
+        
     return redirect("item:my_item")
-    obj = get_object_or_404(Item, pk=item_id, seller=request.user)
-    if request.method == "POST":
-        if obj.status == Item.Status.PENDING:
-            from order.models import Order
-            
-            # Find the active orders holding this item hostage and cancel them
-            active_orders = Order.objects.filter(item=obj, status__in=["pending", "paid"])
-            restored_stock = 0
-            for order in active_orders:
-                restored_stock += order.quantity
-                order.status = "cancelled"
-                order.save(update_fields=["status"])
-            
-            # Put the item back on the market and restore its stock!
-            obj.status = Item.Status.ACTIVE
-            obj.stock += restored_stock
-            obj.save(update_fields=["status", "stock", "updated_at"])
-            
-            messages.success(request, f'Sale refused. "{obj.title}" is back on the active market!')
-            
-    return redirect("item:my_item")
+
 
 """JUST FOR TEST!!!"""
 def item_test(request):
