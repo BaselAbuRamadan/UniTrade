@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from flask import request
+# from flask import request
 from .forms import ItemForm
 from .models import Category, Item
 from django.http import Http404, JsonResponse  # <-- Added JsonResponse here
