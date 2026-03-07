@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mock Payment (For temporary use only, it needs to be changed to the official version)</title>
+
+    <style>
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+            background:#f5f6fa;
+            margin:0;
+            padding:0;
+        }
+
+        .container{
+            width:600px;
+            margin:80px auto;
+            background:white;
+            padding:40px;
+            border-radius:12px;
+            box-shadow:0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        h2{
+            margin-top:0;
+            text-align:center;
+        }
+
+        .order-info{
+            margin-top:25px;
+            line-height:1.9;
+            font-size:16px;
+        }
+
+        .order-info p{
+            margin:6px 0;
+        }
+
+        .btn-area{
+            margin-top:35px;
+            text-align:center;
+        }
+
+        .pay-btn{
+            background:#28a745;
+            color:white;
+            border:none;
+            padding:12px 28px;
+            font-size:16px;
+            border-radius:8px;
+            cursor:pointer;
+        }
+
+        .pay-btn:hover{
+            background:#218838;
+        }
+
+        .back-link{
+            display:inline-block;
+            margin-left:15px;
+            text-decoration:none;
+            color:#555;
+            font-size:15px;
+        }
+
+        .back-link:hover{
+            text-decoration:underline;
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h2>Mock Payment Page</h2>
+
+    <div class="order-info">
+        <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+        <p><strong>Item:</strong> {{ order.item.title }}</p>
+        <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+        <p><strong>Amount:</strong> £{{ order.amount }}</p>
+        <p><strong>Transaction No:</strong> {{ payment.transaction_no }}</p>
+        <p><strong>Status:</strong> {{ payment.status }}</p>
+    </div>
+
+    <div class="btn-area">
+
+        <form method="post" action="{% url 'payment:pay_confirm' order.id %}">
+            {% csrf_token %}
+            <button class="pay-btn" type="submit">
+                Confirm Mock Payment
+            </button>
+        </form>
+
+        <br><br>
+
+        <a class="back-link" href="{% url 'order:order_detail' order.id %}">
+            Back to Order
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

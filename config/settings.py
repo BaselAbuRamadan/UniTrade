@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     "message",
     "order",
     "review.apps.ReviewConfig",
-    "user"
+    "user",
+    "payment"
 ]
 
 MIDDLEWARE = [
