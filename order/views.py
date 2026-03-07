@@ -10,6 +10,7 @@ from item.models import Item
 from .models import Basket, BasketItem, Order
 import uuid
 from order.models import Order
+from message.models import Notification
 
 '''The following are the order functions'''
 
@@ -54,6 +55,13 @@ def order_create(request):
                 amount=(item.price * qty),
                 status='paid',
                 paid_time=timezone.now()
+            )
+
+            Notification.objects.create(
+                user=item.seller,
+                order=order,
+                notification_type='new_order',
+                content=f'You received a new order {order.order_id} for {item.title}.'
             )
 
             #update stock and status | 更新库存与状态
@@ -116,12 +124,22 @@ def order_cancel(request, order_id):
         )
 
     with transaction.atomic():
+
         order.status = "cancelled"
-        order.save()
+        order.save(update_fields=["status"])
+
+        notify_user = order.seller if request.user == order.customer else order.customer
+
+        Notification.objects.create(
+            user=notify_user,
+            order=order,
+            notification_type="order_cancelled",
+            content=f"Order {order.order_id} has been cancelled."
+        )
 
         if hasattr(order.item, "status") and order.item.status == "sold":
             order.item.status = "active"
-            order.item.save()
+            order.item.save(update_fields=["status"])
 
     return JsonResponse({
         "status": "success",
@@ -167,6 +185,15 @@ def order_status(request, order_id):
         order.paid_time = timezone.now()
 
     order.save()
+
+    notify_user = order.seller if request.user == order.customer else order.customer
+
+    Notification.objects.create(
+        user=notify_user,
+        order=order,
+        notification_type='order_status',
+        content=f'Order {order.order_id} status has been updated to {new_status}.'
+    )
 
     return JsonResponse({
         "status": "success",
@@ -416,6 +443,14 @@ def basket_checkout(request):
             amount=bi.subtotal(),       
             status="pending",
         )
+
+        Notification.objects.create(
+            user=item.seller,
+            order=order,
+            notification_type='new_order',
+            content=f'You received a new order {order.order_id} for {getattr(item, "title", getattr(item, "name", "item"))}.'
+        )
+
         created_orders.append(order.order_id)
 
         item.stock -= bi.quantity
