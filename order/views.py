@@ -10,6 +10,7 @@ from item.models import Item
 from .models import Basket, BasketItem, Order
 import uuid
 from order.models import Order
+from message.models import Notification
 
 '''The following are the order functions'''
 
@@ -19,18 +20,15 @@ from order.models import Order
 @transaction.atomic
 def order_create(request):
     if request.method == 'POST':
-        #兼容 item_id / item_id | 兼容两种字段名
-        item_id = request.POST.get('item_id') or request.POST.get('item_id')
+        item_id = request.POST.get('item_id')
         qty = int(request.POST.get('quantity', 1))
 
         if qty <= 0:
             return JsonResponse({'status': 'error', 'message': 'quantity must be > 0'})
 
         try:
-            #only active item | 只允许购买上架商品
             item = Item.objects.select_for_update().get(id=item_id, status=Item.Status.ACTIVE)
 
-            #check if is yours order | 检查是不是你的订单
             if item.seller == request.user:
                 return JsonResponse({
                     'status': 'error',
@@ -40,11 +38,9 @@ def order_create(request):
             if item.seller is None:
                 return JsonResponse({'status': 'error', 'message': 'Item has no seller'})
 
-            #check stock | 检查库存
             if item.stock < qty:
                 return JsonResponse({'status': 'error', 'message': f'Not enough stock. Left: {item.stock}'})
 
-            #create | 创建订单
             order = Order.objects.create(
                 order_id=_new_order_id(),
                 customer=request.user,
@@ -52,23 +48,13 @@ def order_create(request):
                 item=item,
                 quantity=qty,
                 amount=(item.price * qty),
-                status='paid',
-                paid_time=timezone.now()
+                status='pending',
             )
-
-            #update stock and status | 更新库存与状态
-            item.stock -= qty
-            if item.stock <= 0:
-                item.stock = 0
-                item.status = "pending"  # <--- MAKE SURE THIS SAYS "pending", not "sold"!
-                item.save(update_fields=["stock", "status"])
-            else:
-                item.save(update_fields=["stock"])
 
             return JsonResponse({
                 'status': 'success',
-                'message': 'Purchase successful',
-                'redirect_url': reverse('order:order_detail', args=[order.id])
+                'message': 'Order created, please pay',
+                'redirect_url': reverse('payment:pay_order', args=[order.id])
             })
 
         except Item.DoesNotExist:
@@ -116,12 +102,22 @@ def order_cancel(request, order_id):
         )
 
     with transaction.atomic():
+
         order.status = "cancelled"
-        order.save()
+        order.save(update_fields=["status"])
+
+        notify_user = order.seller if request.user == order.customer else order.customer
+
+        Notification.objects.create(
+            user=notify_user,
+            order=order,
+            notification_type="order_cancelled",
+            content=f"Order {order.order_id} has been cancelled."
+        )
 
         if hasattr(order.item, "status") and order.item.status == "sold":
             order.item.status = "active"
-            order.item.save()
+            order.item.save(update_fields=["status"])
 
     return JsonResponse({
         "status": "success",
@@ -167,6 +163,15 @@ def order_status(request, order_id):
         order.paid_time = timezone.now()
 
     order.save()
+
+    notify_user = order.seller if request.user == order.customer else order.customer
+
+    Notification.objects.create(
+        user=notify_user,
+        order=order,
+        notification_type='order_status',
+        content=f'Order {order.order_id} status has been updated to {new_status}.'
+    )
 
     return JsonResponse({
         "status": "success",
@@ -393,7 +398,7 @@ def basket_checkout(request):
     if not basket_items:
         return JsonResponse({"status": "error", "message": "Basket is empty"}, status=400)
 
-    created_orders = []
+    created_order_ids = []
 
     for bi in basket_items:
         item = Item.objects.select_for_update().get(id=bi.item_id)
@@ -407,31 +412,19 @@ def basket_checkout(request):
         if item.seller is None:
             return JsonResponse({"status": "error", "message": "Item has no seller"}, status=400)
 
-        order = Order.objects.create(
-            order_id=_new_order_id(),
-            customer=request.user,
-            seller=item.seller,
-            item=item,
-            quantity=bi.quantity,        
-            amount=bi.subtotal(),       
-            status="pending",
-        )
-        created_orders.append(order.order_id)
+        if item.stock < bi.quantity:
+            return JsonResponse({"status": "error", "message": f"Not enough stock for item {item.title}"}, status=400)
 
-        item.stock -= bi.quantity
-        if item.stock <= 0:
-            item.stock = 0
-            item.status = "pending"  # <--- MAKE SURE THIS SAYS "pending", not Item.Status.SOLD!
-            item.save(update_fields=["stock", "status"])
-        else:
-            item.save(update_fields=["stock"])
+        order = Order.objects.create(order_id=_new_order_id(), customer=request.user, seller=item.seller, item=item,
+                                     quantity=bi.quantity, amount=bi.subtotal(), status="pending", )
 
-    #clear basket | 清空购物车
+        created_order_ids.append(order.id)
+
     basket.items.all().delete()
 
     return JsonResponse({
         "status": "success",
-        "message": "Checkout success",
-        "redirect_url": reverse("order:order_list"),
-        "orders": created_orders,
+        "message": "Checkout success, please pay your orders",
+        "redirect_url": reverse("payment:pay_order", args=[created_order_ids[0]]),
+        "orders": created_order_ids,
     })
