@@ -139,7 +139,7 @@ def order_cancel(request, order_id):
     return JsonResponse({
         "status": "success",
         "message": "Order cancelled successfully",
-        "redirect_url": reverse("order:order_detail", args=[order.id])
+        "redirect_url": reverse("order:order_list") # 取消后跳到订单列表，订单列表里有详细信息了
     })
 
 
