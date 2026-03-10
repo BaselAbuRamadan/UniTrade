@@ -49,11 +49,11 @@
                                         <div>📧 <strong>Email:</strong> <a href="mailto:{{ row.buyer_email }}" style="color: #007bff; text-decoration: none;">{{ row.buyer_email }}</a></div>
                                         <div>📍 <strong>Address:</strong> {{ row.buyer_address|default:"Address not provided (Please contact buyer)" }}</div>
                                         
-                                        <div style="margin-top: 10px;">
+                                        <!-- <div style="margin-top: 10px;">
                                             <a href="#" style="display: inline-block; background: #17a2b8; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='#138496'" onmouseout="this.style.background='#17a2b8'">
                                                 💬 Message Buyer
                                             </a>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                             </div>
@@ -63,7 +63,7 @@
                                     <form action="{% url 'item:order_approve' row.order_id %}" method="post" style="margin: 0;">
                                         {% csrf_token %}
                                         <button type="submit" style="width: 100%; background-color: #28a745; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(40,167,69,0.3); transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'" onclick="return confirm('This will mark the order as fully completed. Proceed?');">
-                                            {% if row.status == 'paid' %}Ship Order{% else %}Finish Order{% endif %}
+                                            {% if row.status == 'paid' %}Finish Order{% else %}Finish Order{% endif %}
                                         </button>
                                     </form>
                                     <form action="{% url 'item:order_refuse' row.order_id %}" method="post" style="margin: 0;">

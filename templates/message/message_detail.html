@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .chat-wrapper { max-width: 800px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 80vh; }
+    .chat-header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; border-radius: 12px 12px 0 0; }
+    .other-user-info h3 { margin: 0; font-size: 18px; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+    .chat-box { flex: 1; padding: 20px; overflow-y: auto; background: #fcfcfc; display: flex; flex-direction: column; gap: 15px; }
+    
+    /* 气泡样式 */
+    .msg { 
+    max-width: 70%; 
+    padding: 10px 15px; 
+    border-radius: 15px; 
+    font-size: 15px; 
+    position: relative; 
+    /* word-break: break-all;      兼容旧浏览器的换行方式 */
+    /* overflow-wrap: break-word;  现代浏览器的换行标准 */
+    /* white-space: pre-wrap;      保留空格和换行 */
+}
+    .msg.mine { 
+        align-self: flex-end; 
+        background: #007bff; 
+        color: white; 
+        border-bottom-right-radius: 2px; 
+        text-align: right;
+    }
+    .msg.theirs { 
+        align-self: flex-start; 
+        background: #e9ecef; 
+        color: #333; 
+        border-bottom-left-radius: 2px; 
+    }
+    .msg-time { font-size: 11px; margin-top: 5px; opacity: 0.7; text-align: right; }
+
+    .chat-input-area { padding: 20px; border-top: 1px solid #eee; display: flex; gap: 10px; }
+    .chat-input-area input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
+    .btn-send { background: #007bff; color: white; border: none; padding: 0 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+</style>
+
+<div class="chat-wrapper">
+    <div class="chat-header">
+        <div class="other-user-info">
+            <h3>{{ other_user.username }}</h3>
+            <span id="status-dot" class="status-dot" style="background: {% if other_user_online %}#28a745{% else %}#ccc{% endif %};"></span>            <small id="user-status">{{ other_user_status }}</small>
+        </div>
+        <div class="item-snapshot">
+            <a href="{% url 'item:item_detail' conversation.item.id %}" style="text-decoration: none; color: #666; font-size: 13px;">
+                📦 {{ conversation.item.title|truncatechars:20 }}
+            </a>
+        </div>
+    </div>
+
+    <div class="chat-box" id="chat-box">
+        {% for msg in chat_messages %}
+            <div class="msg {% if msg.sender == request.user %}mine{% else %}theirs{% endif %}" data-id="{{ msg.id }}">
+                <div class="msg-text">
+                    {% if msg.text %}
+                        <div style="margin-bottom: 4px; white-space: pre-wrap; word-break: break-all; overflow-wrap: break-word;">{{ msg.text }}</div>
+                    {% endif %}
+                    
+                    {% if msg.image %}
+                        <img src="{{ msg.image.url }}" alt="Image" style="max-width: 100%; border-radius: 8px; margin-top: 5px;">
+                    {% endif %}
+                </div>
+                <div class="msg-time">{{ msg.created_at|date:"Y-m-d H:i:s" }}</div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <form class="chat-input-area" id="chat-form">
+        {% csrf_token %}
+        <input type="text" id="msg-input" placeholder="Type a message..." autocomplete="off">
+        <button type="submit" class="btn-send">Send</button>
+    </form>
+</div>
+
+<script>
+    const chatBox = document.getElementById('chat-box');
+    const chatForm = document.getElementById('chat-form');
+    const msgInput = document.getElementById('msg-input');
+    let lastMessageId = "{% if chat_messages %}{{ chat_messages.last.id }}{% else %}0{% endif %}";
+
+    // 1. 自动滚动到底部
+    const scrollToBottom = () => { chatBox.scrollTop = chatBox.scrollHeight; };
+    scrollToBottom();
+
+    // 2. 发送消息 (AJAX)
+    chatForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const text = msgInput.value.trim();
+        if (!text) return;
+
+        const formData = new FormData();
+        formData.append('text', text);
+        formData.append('conversation_id', "{{ conversation.id }}");
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        msgInput.value = '';
+        await fetch("{% url 'message:message_send' %}", { method: 'POST', body: formData });
+        fetchNewMessages(); // 发送后立刻拉取一次
+    };
+
+    // 3. 智能轮询 (每3秒拉取一次新消息)
+    async function fetchNewMessages() {
+        const url = `{% url 'message:message_fetch' %}?conversation_id={{ conversation.id }}&last_message_id=${lastMessageId}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.chat_messages && data.chat_messages.length > 0) {
+            data.chat_messages.forEach(msg => {
+                if (document.querySelector(`[data-id="${msg.id}"]`)) return;
+                const div = document.createElement('div');
+                div.className = `msg ${msg.is_mine ? 'mine' : 'theirs'}`;
+                div.dataset.id = msg.id;
+                div.innerHTML = `
+                    <div class="msg-text">
+                        ${msg.text ? '<div style="margin-bottom: 4px; white-space: pre-wrap; word-break: break-all; overflow-wrap: break-word;">' + msg.text + '</div>' : ''}
+                        ${msg.image_url ? '<img src="' + msg.image_url + '" style="max-width: 100%; border-radius: 8px; margin-top: 5px;">' : ''}
+                    </div>
+                    <div class="msg-time">${msg.created_at}</div>
+                `;
+                chatBox.appendChild(div);
+                lastMessageId = msg.id;
+            });
+            scrollToBottom();
+        }
+        // 更新在线状态文字和状态标颜色
+        document.getElementById('user-status').innerText = data.other_user_status;
+        document.getElementById('status-dot').style.background = data.other_user_online ? '#28a745' : '#ccc';
+    }
+
+    setInterval(fetchNewMessages, 3000);
+</script>
+{% endblock %}
