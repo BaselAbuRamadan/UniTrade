@@ -160,6 +160,16 @@
     .btn-basket:active {
         transform: scale(0.98);
     }
+
+    .reviews-container {
+        max-width: 1000px;
+        margin: 20px auto 60px;
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 30px 40px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
 </style>
 {% endblock %}
 
@@ -275,7 +285,7 @@
                 <p style="font-size: 12px; color: #999; text-align: center; margin-top: 10px;">(This is your listing)</p>
             {% endif %}
         </div>
-        </div>
+    </div>
 
         <script>
             // We check if the button actually exists before adding the click event
@@ -317,4 +327,49 @@
         </script>
     </div>
 </div>
+
+<div class="reviews-container">
+    
+    <h3 style="margin-top: 0; margin-bottom: 20px; color: #333; font-size: 22px;">
+        Customer Reviews ({{ reviews.count }})
+    </h3>
+
+    <div class="reviews-list" style="border-top: 1px solid #eee; padding-top: 25px;">
+        
+        {% for review in reviews %}
+            <div class="review-item" style="margin-bottom: 30px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <strong style="font-size: 16px;">{{ review.customer.username }}</strong>
+                        
+                        <span style="color: #ffc107;">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </span>
+                    </div>
+
+                    <small style="color: #999; font-size: 13px;">
+                        {{ review.created_time|date:"Y-m-d H:i" }}
+                        {% if review.created_time|date:"YmdHi" != review.updated_time|date:"YmdHi" %}
+                            <span style="font-size: 11px; color: #bbb; margin-left: 5px; font-style: italic;">(Edited)</span>
+                        {% endif %}
+                    </small>
+                </div>
+                
+                <p style="color: #444; margin: 10px 0;">{{ review.content }}</p>
+
+                <div class="review-images" style="display: flex; gap: 12px; margin-top: 15px;">
+                    {% for img in review.images.all %}
+                        <img src="{{ img.image.url }}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 6px; border: 1px solid #eee;">
+                    {% endfor %}
+                </div>
+            </div>
+        {% empty %}
+            <p style="color: #999; font-style: italic; padding: 20px 0;">No reviews yet.</p>
+        {% endfor %}
+
+    </div>
+</div>
+
 {% endblock %}
