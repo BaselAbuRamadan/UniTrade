@@ -34,10 +34,42 @@
             width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-right: 15px; background: #eee;
         }
         
-        /* nav-link */
-        .nav-links { display: flex; gap: 15px; align-items: center; }
+        /* nav-link
+        .nav-links { display: flex; gap: 1px; align-items: center; }
         .nav-links a { text-decoration: none; color: #333; font-weight: bold; padding: 8px 12px; }
-        .nav-links a:hover { background-color: #f0f0f0; border-radius: 4px; }
+        .nav-links a:hover { background-color: #f0f0f0; border-radius: 4px; } */
+
+        .nav-links { 
+            display: flex; 
+            gap: 3px;
+            align-items: center; 
+        }
+
+        .nav-links a { 
+            text-decoration: none; 
+            color: #333; 
+            font-weight: bold; 
+            padding: 8px 16px;
+            
+            border-radius: 25px; 
+            background-color: transparent;
+            transition: all 0.3s ease; 
+            
+            display: inline-block;
+            line-height: 1.2;
+        }
+
+        .nav-links a:hover { 
+            background-color: #f0f0f0; 
+            color: #007bff; 
+        }
+
+        .nav-links span {
+            padding: 8px 12px;
+            margin-right: 10px;
+            color: #666;
+            font-size: 0.95em;
+        }
         
         /* Button */
         .btn-publish {
@@ -49,7 +81,7 @@
 
             padding: 10px 22px; 
             margin-right: 5px;
-            border-radius: 8px; 
+            /* border-radius: 8px;  */
             background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
             color: #fff !important;
             box-shadow: 0 4px 15px rgba(0, 123, 255, 0.25);
@@ -63,7 +95,7 @@
         .btn-publish:hover {
             background: linear-gradient(135deg, #0088ff 0%, #0062cc 100%);
             transform: translateY(-2px) scale(1.05);
-            border-radius: 8.4px;
+            /* border-radius: 8.4px; */
             box-shadow: 0 8px 25px rgba(0, 123, 255, 0.45);
             opacity: 1;
         }
@@ -132,10 +164,12 @@
                     {% if user.profile.role == 'merchant' %}
                         <a href="{% url 'item:item_create' %}" class="btn-publish">+ Add New Item</a>
                         <a href="{% url 'item:my_item' %}">My Shop</a>
+                        <a href="{% url 'message:message_list' %}">Messages</a>
                     {% else %}
-                        <a href="{% url 'item:item_list' %}" style="margin-right: 15px; text-decoration: none; color: #333; font-weight: bold;">Browse Items</a>
-                        <a href="/orderbasket/" style="margin-right: 15px; text-decoration: none; color: #333; font-weight: bold;">Basket</a>
+                        <a href="{% url 'item:item_list' %}" style="text-decoration: none; color: #333; font-weight: bold;">Browse Items</a>
+                        <a href="/orderbasket/" style="text-decoration: none; color: #333; font-weight: bold;">Basket</a>
                         <a href="/order" style="text-decoration: none; color: #333; font-weight: bold;">My Orders</a>
+                        <a href="{% url 'message:message_list' %}">Messages</a>
                     {% endif %}
                     
                     <a href="{% url 'user:user_logout' %}">Logout</a>
