@@ -58,13 +58,13 @@
     }
     .btn-back:hover {
         background-color: #f5faff;
-        color: #007bff; 
+        color: #d86800; 
         border-color: #cce5ff;
-        box-shadow: 0 4px 8px rgba(0,123,255,0.1);
+        box-shadow: 0 4px 8px rgba(255,149,0,0.1);
         transform: translateY(-1px);
     }
     .btn-back:hover .icon-arrow {
-        fill: #007bff;
+        fill: #d86800;
     }
 
     /* Item details */
@@ -128,7 +128,7 @@
     .seller-avatar {
         width: 48px;
         height: 48px;
-        background: #007bff;
+        background: #d86800;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -230,7 +230,8 @@
 <div class="action-buttons">
             {% if not user.is_authenticated %}
                 <div style="padding: 15px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; color: #721c24; text-align: center; font-weight: bold;">
-                    Only registered students can buy items. <br>
+                    <!-- Only registered students can buy items. <br> -->
+                    Please log in to buy items. <br>
                 </div>
                 
             {% elif user.is_staff or user.profile.role == 'merchant' %}
@@ -287,7 +288,7 @@
                         onmouseover="this.style.background='#138496'; this.style.transform='translateY(-2px)';"
                         onmouseout="this.style.background='#17a2b8'; this.style.transform='translateY(0)';"
                         >
-                            <span style="margin-right: 8px;">➜</span> Log in to contact seller
+                            <span style="margin-right: 8px;">➜</span> Log in
                         </a>
                     {% endif %}
                 {% else %}
