@@ -24,13 +24,16 @@ from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
 
+from item.models import Item
+
 def index(request):
-    return render(request, "index.html")
+    latest_items = Item.objects.all().order_by('-id')[:4]
+    return render(request, 'index.html', {'latest_items': latest_items})
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # path('', index, name='index'),
-    path('', RedirectView.as_view(pattern_name='item:item_list', permanent=False), name='index'),
+    path('', index, name='index'),
+    # path('', RedirectView.as_view(pattern_name='item:item_list', permanent=False), name='index'),
     path('administrator/', include('administrator.urls')),
     path('payment/', include('payment.urls')),
     path('message/', include('message.urls')),

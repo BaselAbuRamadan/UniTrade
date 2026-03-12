@@ -91,13 +91,16 @@
                         {% csrf_token %}
                         <input type="hidden" name="basket_item_id" value="{{ bi.id }}">
                         
-                        <input type="number" name="quantity" value="{{ bi.quantity }}" min="1" max="{{ bi.item.stock }}" class="qty-input" 
-                            oninvalid="this.setCustomValidity('Only {{ bi.item.stock }} item\(s\) left')" 
-                            oninput="this.setCustomValidity('')">
+                        <input type="number" name="quantity" value="{{ bi.quantity }}" min="1" 
+                            class="qty-input quantity-input" 
+                            data-stock="{{ bi.item.stock }}" 
+                            style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; transition: all 0.3s;">
 
                         <button type="submit" class="btn-update">Update</button>
                         
-                        <span style="font-size: 12px; color: #999; margin-right: 10px; white-space: nowrap;">(Stock: {{ bi.item.stock }})</span>
+                        <span class="stock-label" style="font-size: 12px; color: #999; margin-right: 10px; white-space: nowrap; transition: all 0.3s;">
+                            (Stock: {{ bi.item.stock }})
+                        </span>
                     </form>
 
                     <div style="font-weight: bold; width: 100px; text-align: right; font-size: 18px;">£{{ bi.subtotal }}</div>
@@ -129,65 +132,117 @@
 </div>
 
 <script>
-    // 1. 处理 Update 和 Remove 的无刷新体验
-    document.querySelectorAll('.ajax-action-form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault(); // 阻止浏览器跳走去吃那个 JSON
-            
-            const btn = this.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = "..."; // 按钮变成处理中状态
-            btn.disabled = true;
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('.quantity-input');
+        const checkoutBtn = document.querySelector('#checkout-form .btn-checkout');
 
-            fetch(this.action, {
-                method: 'POST',
-                body: new FormData(this),
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // 操作成功后，直接原地刷新页面，以更新价格和列表
-                    window.location.reload(); 
+        function validateAll() {
+            let anyError = false;
+
+            inputs.forEach(input => {
+                const stock = parseInt(input.getAttribute('data-stock'));
+                const currentVal = parseInt(input.value);
+                const form = input.closest('form');
+                const warning = form.querySelector('.stock-warning');
+                const updateBtn = form.querySelector('.btn-update'); 
+                const stockLabel = form.querySelector('.stock-label'); 
+
+                if (currentVal > stock) {
+                    input.style.borderColor = '#dc3545';
+                    input.style.backgroundColor = '#fff8f8';
+                    if (stockLabel) {
+                        stockLabel.style.color = '#dc3545';
+                        // stockLabel.style.fontWeight = 'bold';
+                    }
+                    if (updateBtn) updateBtn.disabled = true;
+                    anyError = true;
                 } else {
-                    alert("Error: " + data.message);
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
+                    input.style.borderColor = '#ccc';
+                    input.style.backgroundColor = '#fff';
+                    if (stockLabel) {
+                        stockLabel.style.color = '#999';
+                        // stockLabel.style.fontWeight = 'normal';
+                    }
+                    if (updateBtn) updateBtn.disabled = false;
                 }
-            })
-            .catch(err => {
-                console.error("AJAX Error:", err);
-                window.location.reload(); // 兜底策略：如果出错直接刷新
+            });
+
+            if (checkoutBtn) {
+                if (anyError) {
+                    checkoutBtn.disabled = true;
+                    checkoutBtn.style.backgroundColor = '#6c757d';
+                    checkoutBtn.style.cursor = 'not-allowed';
+                    checkoutBtn.innerHTML = "Check your stock limit";
+                } else {
+                    checkoutBtn.disabled = false;
+                    checkoutBtn.style.backgroundColor = '#28a745';
+                    checkoutBtn.style.cursor = 'pointer';
+                    checkoutBtn.innerHTML = "Checkout & Confirm Order";
+                }
+            }
+        }
+
+        inputs.forEach(input => {
+            input.addEventListener('input', validateAll);
+        });
+        validateAll();
+
+        document.querySelectorAll('.ajax-action-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); 
+                
+                const btn = this.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = "..."; 
+                btn.disabled = true;
+
+                fetch(this.action, {
+                    method: 'POST',
+                    body: new FormData(this),
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        window.location.reload(); 
+                    } else {
+                        alert("Error: " + data.message);
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    console.error("AJAX Error:", err);
+                    window.location.reload(); 
+                });
             });
         });
+
+        const checkoutForm = document.getElementById('checkout-form');
+        if (checkoutForm) {
+            checkoutForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const btn = this.querySelector('.btn-checkout');
+                btn.innerHTML = "Processing Order... ⏳";
+                btn.disabled = true;
+
+                fetch(this.action, {
+                    method: 'POST',
+                    body: new FormData(this),
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    window.location.href = "{% url 'order:order_list' %}";
+                })
+                .catch(err => {
+                    alert("Checkout failed. Please try again.");
+                    btn.innerHTML = "Checkout & Confirm Order";
+                    btn.disabled = false;
+                });
+            });
+        }
     });
-
-    // 2. 处理 Checkout 结算按钮
-    const checkoutForm = document.getElementById('checkout-form');
-    if (checkoutForm) {
-        checkoutForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const btn = this.querySelector('.btn-checkout');
-            btn.innerHTML = "Processing Order... ⏳";
-            btn.disabled = true;
-
-            fetch(this.action, {
-                method: 'POST',
-                body: new FormData(this),
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                // 结算成功后，带用户跳转到真实的 Order List 页面！
-                window.location.href = "{% url 'order:order_list' %}";
-            })
-            .catch(err => {
-                alert("Checkout failed. Please try again.");
-                btn.innerHTML = "Checkout & Confirm Order";
-                btn.disabled = false;
-            });
-        });
-    }
 </script>
 {% endblock %}
