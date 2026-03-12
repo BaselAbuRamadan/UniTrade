@@ -154,11 +154,13 @@
         <div class="action-desc">Find great deals from fellow students.</div>
     </a>
     
-    <a href="{% url 'item:item_create' %}" class="action-card">
-        <div class="action-icon">💰</div>
-        <div class="action-title">Sell an Item</div>
-        <div class="action-desc">Turn your old stuff into quick cash.</div>
-    </a>
+    {% if user.profile.role == 'merchant' %}
+        <a href="{% url 'item:item_create' %}" class="action-card">
+            <div class="action-icon">💰</div>
+            <div class="action-title">Sell an Item</div>
+            <div class="action-desc">Turn your old stuff into quick cash.</div>
+        </a>
+    {% endif %}
     
     <a href="{% url 'message:message_list' %}" class="action-card">
         <div class="action-icon">💬</div>
