@@ -198,7 +198,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_CHANGE_EMAIL = False
 
-ACCOUNT_ADAPTER = "email_verify.adapter.AcUkAccountAdapter"
+#ACCOUNT_ADAPTER = "email_verify.adapter.AcUkAccountAdapter"
 
 ACCOUNT_FORMS = {
     "signup": "email_verify.forms.AcUkSignupForm",
@@ -209,12 +209,13 @@ LOGOUT_REDIRECT_URL = "/"
 
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.office365.com"
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"#for test
+#EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = "unitradeworld@outlook.com"
+EMAIL_HOST_USER = "unitradeworldmail@gmail.com"
 EMAIL_HOST_PASSWORD = "dlfxuxdbdvijtkoz"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER

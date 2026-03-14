@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        <script>
+            alert("{{ message|escapejs }}");
+        </script>
+    {% endfor %}
+{% endif %}
+
+<h2>Email Verification</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <label for="code">Enter verification code:</label>
+    <input type="text" name="code" id="code" required>
+    <button type="submit">Verify</button>
+</form>
+
+{% endblock %}
