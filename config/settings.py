@@ -47,13 +47,18 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+
     "administrator",
     "item.apps.ItemConfig",
     "message",
     "order",
     "review.apps.ReviewConfig",
-    "user",
-    "payment"
+    "user.apps.UserConfig",
+    "payment",
+    "email_verify.apps.EmailVerifyConfig",
 ]
 
 MIDDLEWARE = [
@@ -64,7 +69,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'message.middleware.UpdateLastSeenMiddleware'
+    'message.middleware.UpdateLastSeenMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -163,3 +169,42 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Media files (Images, Videos, etc.)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = "/var/www/UniTrade/media"
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
+ACCOUNT_SIGNUP_FIELDS = ["username*", "email*", "password1*", "password2*"]
+
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_EMAIL_REQUIRED = True
+
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_CHANGE_EMAIL = False
+
+ACCOUNT_ADAPTER = "email_verify.adapter.AcUkAccountAdapter"
+
+ACCOUNT_FORMS = {
+    "signup": "email_verify.forms.AcUkSignupForm",
+}
+
+LOGIN_REDIRECT_URL = "/user/dashboard/"
+LOGOUT_REDIRECT_URL = "/"
+
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.office365.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "unitradeworld@outlook.com"
+EMAIL_HOST_PASSWORD = "Unitrade233"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SERVER_EMAIL = EMAIL_HOST_USER
