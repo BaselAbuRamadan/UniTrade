@@ -82,9 +82,13 @@
     .cat-item-link.active { color: #d86800; font-weight: bold; }
 </style>
 
-<div class="page-container">
+<div class="page-container" >
     
-    <aside class="sidebar">
+    <button id="mobile-filter-toggle" class="mobile-filter-btn">
+        <span style="margin-right: 5px;">∨</span> Show Categories
+    </button>
+
+    <aside class="sidebar" id="filter-sidebar">
         <div class="sidebar-card">
             <h3 class="sidebar-title">Categories</h3>
             <ul class="category-list">
@@ -162,6 +166,21 @@
 
 {% block extra_js %}
 <script>
+
+    const toggleBtn = document.getElementById('mobile-filter-toggle');
+        const sidebar = document.getElementById('filter-sidebar');
+        if (toggleBtn && sidebar) {
+            toggleBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('show-on-mobile');
+                
+                if (sidebar.classList.contains('show-on-mobile')) {
+                    toggleBtn.innerHTML = '<span style="margin-right: 5px;">∧</span> Hide Categories';
+                } else {
+                    toggleBtn.innerHTML = '<span style="margin-right: 5px;">∨</span> Show Categories';
+                }
+            });
+        }
+
     document.addEventListener('DOMContentLoaded', function() {
         const cards = document.querySelectorAll('.item-card');
 
